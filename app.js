@@ -252,23 +252,29 @@ function initContactForm() {
             submitBtn.textContent = 'Sending...';
             submitBtn.disabled = true;
             
-            // Simulate API call
-            setTimeout(() => {
-                // Create mailto link
-                const mailtoLink = `mailto:balakarthi2004bk@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`)}`;
-                
-                // Open mailto link
-                window.location.href = mailtoLink;
-                
-                // Reset form
-                contactForm.reset();
-                
-                // Reset button
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-                
-                showNotification('Thank you for your message! Your email client should open now.', 'success');
-            }, 1000);
+           // Send to Google Apps Script
+fetch('https://script.google.com/macros/s/AKfycbz9IEnEpukaVzw96HwiwA_VTvDkqHm6A_F1R1gQ9Z4SzHW2sxzoBFbrxvc_2_-CFgnD2Q/exec', {  // ← Paste your actual URL here
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, subject, message })
+})
+.then(response => response.json())
+.then(data => {
+    if (data.success) {
+        contactForm.reset();
+        showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
+    } else {
+        showNotification('Failed to send message. Please try again.', 'error');
+    }
+})
+.catch(error => {
+    showNotification('Network error. Please try again later.', 'error');
+})
+.finally(() => {
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
+});
+
         });
     }
 }
